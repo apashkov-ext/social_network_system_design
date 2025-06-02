@@ -1,1 +1,73 @@
+openapi: 3.0.4
+info:
+  title: Phileas.net - OpenAPI 3.0
+  description: |-
+    [Репозиторий](https://github.com/apashkov-ext/social_network_system_design)
+  license:
+    name: MIT
+    url: https://github.com/DefinitelyTyped/docs/blob/master/LICENSE-MIT
+  version: 1.0.0
+tags:
+  - name: posts
+    description: Статьи
+  - name: reactions
+    description: Реакции
+  - name: comments
+    description: Комментарии
+paths:
+  /posts:
+    post:
+      summary: Создать новую статью
+      operationId: createPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - contentMarkdown
+              properties:
+                title:
+                  type: string
+                  description: Заголовок статьи
+                  example: "Моё путешествие в Армению"
+                contentMarkdown:
+                  type: string
+                  description: Текст статьи в формате Markdown
+                  example: |
+                    Это было **великолепно**!  
+                    ![гора Арарат](https://example.com/arararat.jpg)
+                authorId:
+                  type: string
+                  description: ID пользователя
+                  example: "user-123"
+                images:
+                  type: array
+                  description: Список URL-адресов изображений
+                  items:
+                    type: string
+                    format: uri
+                    example: "https://example.com/photo1.jpg"
+      responses:
+        '201':
+          description: Статья успешно создана
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "post-67890"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2025-06-02T14:30:00Z"
+        '400':
+          description: Неверные данные запроса
+        '500':
+          description: Внутренняя ошибка сервера
 
+components: {}
