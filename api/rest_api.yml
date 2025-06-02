@@ -61,10 +61,6 @@ paths:
                   id:
                     type: string
                     example: "post-67890"
-                  createdAt:
-                    type: string
-                    format: date-time
-                    example: "2025-06-02T14:30:00Z"
         '400':
           description: Неверные данные запроса
         '401':
