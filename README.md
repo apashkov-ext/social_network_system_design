@@ -87,3 +87,6 @@ DAU через год: 10 000 000
 
 ## API
 [Описание API в нотации OpenAPI](https://github.com/apashkov-ext/social_network_system_design/blob/main/api/rest_api.yml).
+
+## База данных
+[Схема](https://dbdiagram.io/d/683f554861dc3bf08d6cf66a)
