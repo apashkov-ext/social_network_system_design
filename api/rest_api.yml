@@ -1,22 +1,16 @@
-openapi: 3.0.4
+openapi: '3.0.3'
 info:
-  title: Phileas.net - OpenAPI 3.0
+  title: API Title
+  version: 'v1'
   description: |-
     [Репозиторий](https://github.com/apashkov-ext/social_network_system_design)
-  license:
-    name: MIT
-    url: https://github.com/DefinitelyTyped/docs/blob/master/LICENSE-MIT
-  version: 1.0.0
-tags:
-  - name: posts
-    description: Статьи
-  - name: reactions
-    description: Реакции
-  - name: comments
-    description: Комментарии
+servers:
+  - url: https://api.phileas.net/v1
+
 paths:
   /posts:
     post:
+      tags: ['posts']
       summary: Создать новую статью
       operationId: createPost
       requestBody:
@@ -24,32 +18,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - title
-                - contentMarkdown
-              properties:
-                title:
-                  type: string
-                  description: Заголовок статьи
-                  example: "Моё путешествие в Армению"
-                contentMarkdown:
-                  type: string
-                  description: Текст статьи в формате Markdown
-                  example: |
-                    Это было **великолепно**!  
-                    ![гора Арарат](https://example.com/arararat.jpg)
-                authorId:
-                  type: string
-                  description: ID пользователя
-                  example: "user-123"
-                images:
-                  type: array
-                  description: Список URL-адресов изображений
-                  items:
-                    type: string
-                    format: uri
-                    example: "https://example.com/photo1.jpg"
+              $ref: '#/components/schemas/postWriteModel'
       responses:
         '201':
           description: Статья успешно создана
@@ -60,12 +29,186 @@ paths:
                 properties:
                   id:
                     type: string
+                    description: идентификатор статьи
                     example: "post-67890"
         '400':
           description: Неверные данные запроса
         '401':
-          description: Аутентификация
-        '500':
-          description: Внутренняя ошибка сервера
+          description: Неавторизованный запрос
+        '500': 
+          $ref: '#/components/responses/500'
+  
+  /posts/{id}:
+    get:
+      tags: ['posts']
+      summary: Получить статью
+      operationId: getPost
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID статьи
+          schema:
+            type: string
+      responses:
+        '200':
+          description: разметка статьи
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/feedPost'
+        '401':
+          description: Неавторизованный запрос
+        '500': 
+          $ref: '#/components/responses/500'
 
-components: {}
+  /feed:
+    get:
+      tags: ['posts']
+      summary: получить ленту новостей
+      operationId: getFeed
+      parameters:
+        - name: offset
+          in: query
+          required: true
+          description: Сколько статей пропустить
+          schema:
+            type: integer
+            minimum: 0
+        - name: limit
+          in: query
+          required: true
+          description: Сколько статей пропустить
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/postReadModel'
+        '500': 
+          $ref: '#/components/responses/500'
+
+  /reactions:
+    post:
+      tags: ['reactions']
+      summary: 'Поставить оценку'
+      operationId: createReaction
+      responses:
+        '200':
+          description: OK
+        '500': 
+          $ref: '#/components/responses/500'
+  
+  /comments:
+    post:
+      tags: ['comments']
+      summary: 'Добавить комментарий'
+      operationId: createComment
+      responses:
+        '200':
+          description: OK
+        '500': 
+          $ref: '#/components/responses/500'
+          
+components:
+  responses:
+    '500':
+      description: Внутренняя ошибка сервера
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              traceId:
+                type: string
+  schemas:
+
+    'postWriteModel':
+      type: object
+      required:
+        - title
+        - contentMarkdown
+      properties:
+        title:
+          type: string
+          description: Заголовок статьи
+          example: "Мое путешествие в Исландию"
+        contentMarkdown:
+          type: string
+          description: Текст статьи в формате Markdown
+          example: |
+            Это было **великолепно**!  
+            ![Рейкьявик](https://example.com/img.jpg)
+        images:
+          type: array
+          description: Список URL-адресов изображений
+          items:
+            type: string
+            format: uri
+            example: "https://example.com/photo1.jpg"
+
+    'postReadModel':
+      type: object
+      properties:
+        id:
+          type: string
+          description: Идентификатор статьи
+          example: "post-67890"
+        title: 
+          type: string
+          description: Заголовок
+        contentMarkdown:
+          type: string
+          description: Контент
+          example: |
+            Это было **великолепно**!  
+            ![Рейкьявик](https://example.com/img.jpg)
+        images:
+          type: array
+          description: Список URL-адресов изображений
+          items:
+            type: string
+            format: uri
+            example: "https://example.com/photo1.jpg"
+        reactions:
+          type: integer
+          description: оценка
+          example: 5
+
+    'feedPost':
+      type: object
+      properties:
+        id:
+          type: string
+          description: Идентификатор статьи
+          example: "post-67890"
+        title: 
+          type: string
+          description: Заголовок
+        preview:
+          type: string
+          description: Превью
+          example: |
+            Это было **великолепно**!...
+
+    'addReaction':
+      type: object
+      properties:
+        postId:
+          type: string
+          description: Идентификатор статьи
+          example: "post-67890"
+        vote:
+          type: integer
+          description: Оценка
+          example: 5
