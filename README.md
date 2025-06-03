@@ -84,3 +84,6 @@ DAU через год: 10 000 000
 - RPS R: 20 000 000 / 86 400 = 811
 - трафик на запись: 23.6 Gb + 1.4 Mb + 6 Mb = 23.7 Gb
 - трафик на чтение: 28 Tb + 1.4 Mb + 7.1 Gb = 28.1 Tb
+
+## API
+[Описание API в нотации OpenAPI](https://github.com/apashkov-ext/social_network_system_design/blob/main/api/rest_api.yml).
