@@ -1,0 +1,320 @@
+openapi: '3.0.3'
+info:
+  title: API Title
+  version: 'v1'
+  description: |-
+    [Репозиторий](https://github.com/apashkov-ext/social_network_system_design)
+servers:
+  - url: https://api.phileas.net/v1
+
+paths:
+  /posts:
+    post:
+      tags: ['posts']
+      summary: Создать новую статью
+      operationId: createPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/postWriteModel'
+      responses:
+        '201':
+          description: Статья успешно создана
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: идентификатор статьи
+                    example: "post-67890"
+        '400':
+          description: Неверные данные запроса
+        '401':
+          description: Неавторизованный запрос
+        '500': 
+          $ref: '#/components/responses/500'
+  
+  /posts/{id}:
+    get:
+      tags: ['posts']
+      summary: Получить статью
+      operationId: getPost
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID статьи
+          schema:
+            type: string
+      responses:
+        '200':
+          description: разметка статьи
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/feedPost'
+        '401':
+          description: Неавторизованный запрос
+        '500': 
+          $ref: '#/components/responses/500'
+
+  /feed:
+    get:
+      tags: ['posts']
+      summary: получить ленту новостей
+      operationId: getFeed
+      parameters:
+        - name: offset
+          in: query
+          required: true
+          description: Сколько статей пропустить
+          schema:
+            type: integer
+            minimum: 0
+        - name: limit
+          in: query
+          required: true
+          description: Сколько статей пропустить
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/postReadModel'
+        '500': 
+          $ref: '#/components/responses/500'
+
+  /reactions:
+    post:
+      tags: ['reactions']
+      summary: 'Поставить оценку'
+      operationId: createReaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/addReaction'
+      responses:
+        '200':
+          description: OK
+        '500': 
+          $ref: '#/components/responses/500'
+  
+  /comments:
+    post:
+      tags: ['comments']
+      summary: 'Добавить комментарий'
+      operationId: createComment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/commentWriteModel'
+      responses:
+        '201':
+          description: Комент добавлен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: идентификатор комментария
+                    example: "comment-67890"
+        '400':
+          description: Неверные данные запроса
+        '401':
+          description: Неавторизованный запрос
+        '500': 
+          $ref: '#/components/responses/500'
+  
+    get:
+      summary: Получить комментарии к статье'
+      tags: ['comments']
+      operationId: getComments
+      parameters:
+        - name: postId
+          in: query
+          required: true
+          description: Статья
+          schema:
+            type: string
+        - name: offset
+          in: query
+          required: true
+          description: Сколько коментов пропустить
+          schema:
+            type: integer
+            minimum: 0
+        - name: limit
+          in: query
+          required: true
+          description: Сколько коментов взять
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/commentReadModel'
+          
+components:
+  responses:
+    '500':
+      description: Внутренняя ошибка сервера
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              traceId:
+                type: string
+  schemas:
+
+    'postWriteModel':
+      type: object
+      required:
+        - title
+        - contentMarkdown
+      properties:
+        title:
+          type: string
+          description: Заголовок статьи
+          example: "Мое путешествие в Исландию"
+        contentMarkdown:
+          type: string
+          description: Текст статьи в формате Markdown
+          example: |
+            Это было **великолепно**!  
+            ![Рейкьявик](https://example.com/img.jpg)
+        images:
+          type: array
+          description: Список URL-адресов изображений
+          items:
+            type: string
+            format: uri
+            example: "https://example.com/photo1.jpg"
+
+    'postReadModel':
+      type: object
+      properties:
+        id:
+          type: string
+          description: Идентификатор статьи
+          example: "post-67890"
+        title: 
+          type: string
+          description: Заголовок
+        contentMarkdown:
+          type: string
+          description: Контент
+          example: |
+            Это было **великолепно**!  
+            ![Рейкьявик](https://example.com/img.jpg)
+        images:
+          type: array
+          description: Список URL-адресов изображений
+          items:
+            type: string
+            format: uri
+            example: "https://example.com/photo1.jpg"
+        reactions:
+          type: integer
+          description: оценка
+          example: 5
+
+    'feedPost':
+      type: object
+      properties:
+        id:
+          type: string
+          description: Идентификатор статьи
+          example: "post-67890"
+        title: 
+          type: string
+          description: Заголовок
+        preview:
+          type: string
+          description: Превью
+          example: |
+            Это было **великолепно**!...
+
+    'addReaction':
+      type: object
+      properties:
+        postId:
+          type: string
+          description: Идентификатор статьи
+          example: "post-67890"
+        vote:
+          type: integer
+          description: Оценка
+          example: 5
+
+    'commentWriteModel':
+      type: object
+      properties:
+        postId:
+          type: string
+          description: Идентификатор статьи
+          example: "post-67890"
+        content:
+          type: object
+          properties:     
+            author:
+              type: string
+            timestamp:
+              type: string
+            textMd: 
+              type: string
+            imageUrls:
+              type: array
+              items:
+                type: string
+
+    'commentReadModel':
+      type: object
+      properties:
+        commentId:
+          type: string
+          description: Идентификатор комментария
+          example: "comment-67890"
+        postId:
+          type: string
+          description: Идентификатор статьи
+          example: "post-67890"
+        content:
+          type: object
+          description: Контент комента
+          properties:
+            author:
+              type: string
+            timestamp:
+              type: string
+            textMd: 
+              type: string
+            imageUrls:
+              type: array
+              items:
+                type: string
