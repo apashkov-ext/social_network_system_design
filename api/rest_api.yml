@@ -101,6 +101,12 @@ paths:
       tags: ['reactions']
       summary: 'Поставить оценку'
       operationId: createReaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/addReaction'
       responses:
         '200':
           description: OK
@@ -112,11 +118,64 @@ paths:
       tags: ['comments']
       summary: 'Добавить комментарий'
       operationId: createComment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/commentWriteModel'
+      responses:
+        '201':
+          description: Комент добавлен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: идентификатор комментария
+                    example: "comment-67890"
+        '400':
+          description: Неверные данные запроса
+        '401':
+          description: Неавторизованный запрос
+        '500': 
+          $ref: '#/components/responses/500'
+  
+    get:
+      summary: Получить комментарии к статье'
+      tags: ['comments']
+      operationId: getComments
+      parameters:
+        - name: postId
+          in: query
+          required: true
+          description: Статья
+          schema:
+            type: string
+        - name: offset
+          in: query
+          required: true
+          description: Сколько коментов пропустить
+          schema:
+            type: integer
+            minimum: 0
+        - name: limit
+          in: query
+          required: true
+          description: Сколько коментов взять
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
       responses:
         '200':
           description: OK
-        '500': 
-          $ref: '#/components/responses/500'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/commentReadModel'
           
 components:
   responses:
@@ -212,3 +271,50 @@ components:
           type: integer
           description: Оценка
           example: 5
+
+    'commentWriteModel':
+      type: object
+      properties:
+        postId:
+          type: string
+          description: Идентификатор статьи
+          example: "post-67890"
+        content:
+          type: object
+          properties:     
+            author:
+              type: string
+            timestamp:
+              type: string
+            textMd: 
+              type: string
+            imageUrls:
+              type: array
+              items:
+                type: string
+
+    'commentReadModel':
+      type: object
+      properties:
+        commentId:
+          type: string
+          description: Идентификатор комментария
+          example: "comment-67890"
+        postId:
+          type: string
+          description: Идентификатор статьи
+          example: "post-67890"
+        content:
+          type: object
+          description: Контент комента
+          properties:
+            author:
+              type: string
+            timestamp:
+              type: string
+            textMd: 
+              type: string
+            imageUrls:
+              type: array
+              items:
+                type: string
