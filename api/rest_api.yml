@@ -21,35 +21,22 @@ paths:
               $ref: '#/components/schemas/postWriteModel'
       responses:
         '201':
-          description: Статья успешно создана
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    description: идентификатор статьи
-                    example: "post-67890"
+          $ref: '#/components/responses/201'
         '400':
           description: Неверные данные запроса
         '401':
-          description: Неавторизованный запрос
+          $ref: '#/components/responses/401'
         '500': 
           $ref: '#/components/responses/500'
-  
+
   /posts/{id}:
     get:
       tags: ['posts']
       summary: Получить статью
       operationId: getPost
       parameters:
-        - name: id
-          in: path
-          required: true
-          description: ID статьи
-          schema:
-            type: string
+        - $ref: '#/components/parameters/identifier'
+        - $ref: '#/components/parameters/identifier'
       responses:
         '200':
           description: разметка статьи
@@ -57,8 +44,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/feedPost'
+        '500': 
+          $ref: '#/components/responses/500'
+
+    put:
+      tags: ['posts']
+      summary: Обновить статью
+      operationId: updatePost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/postUpdateModel'
+      responses:
+        '200':
+          $ref: '#/components/responses/200'
+        '400':
+          description: Неверные данные запроса
         '401':
-          description: Неавторизованный запрос
+          $ref: '#/components/responses/401'
+        '500': 
+          $ref: '#/components/responses/500'
+
+    delete:
+      tags: ['posts']
+      summary: Удалить статью
+      operationId: deletePost
+      responses:
+        '200':
+          description: Статья успешно удалена
+        '401':
+          $ref: '#/components/responses/401'
         '500': 
           $ref: '#/components/responses/500'
 
@@ -83,7 +100,6 @@ paths:
             type: integer
             minimum: 1
             maximum: 100
-
       responses:
         '200':
           description: OK
@@ -108,11 +124,28 @@ paths:
             schema:
               $ref: '#/components/schemas/addReaction'
       responses:
-        '200':
-          description: OK
+        '201':
+          $ref: '#/components/responses/201'
         '500': 
           $ref: '#/components/responses/500'
-  
+
+  /reactions/{id}:
+    put:
+      tags: ['reactions']
+      summary: 'Изменить оценку'
+      operationId: updateReaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/updateReaction'
+      responses:
+        '200':
+          $ref: '#/components/responses/200'
+        '500': 
+          $ref: '#/components/responses/500'
+      
   /comments:
     post:
       tags: ['comments']
@@ -126,20 +159,39 @@ paths:
               $ref: '#/components/schemas/commentWriteModel'
       responses:
         '201':
-          description: Комент добавлен
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    description: идентификатор комментария
-                    example: "comment-67890"
+          $ref: '#/components/responses/201'
         '400':
           description: Неверные данные запроса
         '401':
-          description: Неавторизованный запрос
+          $ref: '#/components/responses/401'
+        '500': 
+          $ref: '#/components/responses/500'
+
+  /comments/{id}:
+    put:
+      tags: ['comments']
+      summary: 'Обновить комментарий'
+      operationId: updateComment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Идентификатор
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/commentUpdateModel'
+      responses:
+        '200':
+          $ref: '#/components/responses/200'
+        '400':
+          description: Неверные данные запроса
+        '401':
+          $ref: '#/components/responses/401'
         '500': 
           $ref: '#/components/responses/500'
   
@@ -190,6 +242,46 @@ components:
                 type: string
               traceId:
                 type: string
+                format: 'uuid'
+                example: '356321b0-be30-453d-a241-f82983640e28'
+
+    '401':
+      description: Неавторизованный запрос
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              traceId:
+                type: string
+
+    '201':
+      description: Сущность успешно создана
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Короткий (публичный) идентификатор сущности
+                example: "EWu2re5bI"
+
+    '200updated':
+      description: Сущность успешно обновлена
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Короткий (публичный) идентификатор сущности
+                example: "EWu2re5bI"
+        
+
   schemas:
 
     'postWriteModel':
@@ -201,6 +293,30 @@ components:
         title:
           type: string
           description: Заголовок статьи
+          example: "Мое путешествие в Исландию"
+        contentMarkdown:
+          type: string
+          description: Текст статьи в формате Markdown
+          example: |
+            Это было **великолепно**!  
+            ![Рейкьявик](https://example.com/img.jpg)
+        images:
+          type: array
+          description: Список URL-адресов изображений
+          items:
+            type: string
+            format: uri
+            example: "https://example.com/photo1.jpg"
+
+    'postUpdateModel':
+      type: object
+      required:
+        - title
+        - contentMarkdown
+      properties:
+        title:
+          type: string
+          description: Заголовок статьи 2
           example: "Мое путешествие в Исландию"
         contentMarkdown:
           type: string
@@ -272,6 +388,14 @@ components:
           description: Оценка
           example: 5
 
+    'updateReaction':
+      type: object
+      properties:
+        vote:
+          type: integer
+          description: Оценка
+          example: 5
+
     'commentWriteModel':
       type: object
       properties:
@@ -293,13 +417,30 @@ components:
               items:
                 type: string
 
+    'commentUpdateModel':
+      type: object
+      properties:
+        content:
+          type: object
+          properties:     
+            author:
+              type: string
+            timestamp:
+              type: string
+            textMd: 
+              type: string
+            imageUrls:
+              type: array
+              items:
+                type: string
+
     'commentReadModel':
       type: object
       properties:
         commentId:
           type: string
           description: Идентификатор комментария
-          example: "comment-67890"
+          example: "EWu2re5bI"
         postId:
           type: string
           description: Идентификатор статьи
@@ -318,3 +459,12 @@ components:
               type: array
               items:
                 type: string
+
+  parameters:
+    'identifier':
+      name: id
+      in: path
+      required: true
+      description: Идентификатор сущности
+      schema:
+        type: string
