@@ -50,6 +50,8 @@ paths:
       tags: ['posts']
       summary: Обновить статью
       operationId: updatePost
+      parameters:
+        - $ref: '#/components/parameters/identifier'
       requestBody:
         required: true
         content:
@@ -58,7 +60,7 @@ paths:
               $ref: '#/components/schemas/postUpdateModel'
       responses:
         '200':
-          $ref: '#/components/responses/200'
+          $ref: '#/components/responses/200updated'
         '400':
           description: Неверные данные запроса
         '401':
@@ -70,6 +72,8 @@ paths:
       tags: ['posts']
       summary: Удалить статью
       operationId: deletePost
+      parameters:
+        - $ref: '#/components/parameters/identifier'
       responses:
         '200':
           description: Статья успешно удалена
@@ -143,7 +147,7 @@ paths:
               $ref: '#/components/schemas/updateReaction'
       responses:
         '200':
-          $ref: '#/components/responses/200'
+          $ref: '#/components/responses/200updated'
         '500': 
           $ref: '#/components/responses/500'
       
@@ -161,29 +165,6 @@ paths:
       responses:
         '201':
           $ref: '#/components/responses/201'
-        '400':
-          description: Неверные данные запроса
-        '401':
-          $ref: '#/components/responses/401'
-        '500': 
-          $ref: '#/components/responses/500'
-
-  /comments/{id}:
-    put:
-      tags: ['comments']
-      summary: 'Обновить комментарий'
-      operationId: updateComment
-      parameters:
-        - $ref: '#/components/parameters/identifier'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/commentUpdateModel'
-      responses:
-        '200':
-          $ref: '#/components/responses/200'
         '400':
           description: Неверные данные запроса
         '401':
@@ -224,6 +205,45 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/commentReadModel'
+                
+  /comments/{id}:
+    put:
+      tags: ['comments']
+      summary: 'Обновить комментарий'
+      operationId: updateComment
+      parameters:
+        - $ref: '#/components/parameters/identifier'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/commentUpdateModel'
+      responses:
+        '200':
+          $ref: '#/components/responses/200updated'
+        '400':
+          description: Неверные данные запроса
+        '401':
+          $ref: '#/components/responses/401'
+        '500': 
+          $ref: '#/components/responses/500'
+          
+    delete:
+      tags: ['comments']
+      summary: 'Обновить комментарий'
+      operationId: deleteComment
+      parameters:
+        - $ref: '#/components/parameters/identifier'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Неверные данные запроса
+        '401':
+          $ref: '#/components/responses/401'
+        '500': 
+          $ref: '#/components/responses/500'
           
 components:
   responses:
