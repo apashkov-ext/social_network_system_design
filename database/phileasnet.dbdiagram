@@ -1,0 +1,48 @@
+Table posts {
+  id uuid [primary key]
+  short_id string [not null, unique]
+  created_at timestamp
+  updated_at timestamp
+  title varchar
+  content text [not null]
+  author_id uuid [not null]
+}
+
+Table reactions {
+  id uuid [primary key]
+  created_at timestamp
+  updated_at timestamp
+  post_id uuid [not null]
+  vote int [not null]
+  device_sign varchar [not null]
+  author_id uuid [null, note: 'Если человек вошел в аккаунт']
+}
+
+Table authors {
+  id uuid [primary key]
+  created_at timestamp
+  updated_at timestamp
+  username varchar
+}
+
+Table comments {
+  id uuid [primary key]
+  created_at timestamp
+  updated_at timestamp
+  post_id uuid [not null]
+}
+
+Table follows {
+  id uuid [primary key]
+  created_at timestamp
+  updated_at timestamp
+  author_id uuid [not null]
+  follower_id uuid [not null]
+}
+
+Ref post_reaction: reactions.post_id > posts.id
+Ref author_reaction: reactions.author_id > authors.id
+Ref user_posts: posts.author_id > authors.id
+Ref post_comments: comments.post_id > posts.id
+Ref followers: follows.author_id > authors.id
+Ref subscribers: follows.follower_id > authors.id
