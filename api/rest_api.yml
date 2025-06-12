@@ -173,12 +173,7 @@ paths:
       summary: 'Обновить комментарий'
       operationId: updateComment
       parameters:
-        - name: id
-          in: path
-          required: true
-          description: Идентификатор
-          schema:
-            type: string
+        - $ref: '#/components/parameters/identifier'
       requestBody:
         required: true
         content:
